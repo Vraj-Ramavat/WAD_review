@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #05070D;
+    color: #F4F2ED;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fraunces', serif;
+  }
+}
+
+/* Custom hairline instrument panel classes */
+.instrument-panel {
+  background-color: rgba(11, 15, 26, 0.85);
+  border: 1px solid rgba(176, 141, 87, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.instrument-border {
+  border: 1px solid rgba(176, 141, 87, 0.3);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #05070D;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(176, 141, 87, 0.3);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(232, 163, 61, 0.5);
+}
+
+/* Animations & canvas utilities */
+.canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: auto;
+}
+
+.ui-overlay {
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.ui-interactive {
+  pointer-events: auto;
+}
