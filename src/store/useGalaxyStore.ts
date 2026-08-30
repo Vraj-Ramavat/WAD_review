@@ -11,6 +11,7 @@ interface GalaxyStore {
   setHoveredRepoId: (id: string | null) => void;
   setSelectedRepoId: (id: string | null) => void;
   addSearchedRepo: (url: string) => FeaturedRepo;
+  saveFetchedRepo: (repo: FeaturedRepo) => void;
   getRepoById: (id: string) => FeaturedRepo | undefined;
 }
 
@@ -22,6 +23,17 @@ export const useGalaxyStore = create<GalaxyStore>((set, get) => ({
 
   setHoveredRepoId: (id) => set({ hoveredRepoId: id }),
   setSelectedRepoId: (id) => set({ selectedRepoId: id }),
+
+  saveFetchedRepo: (repo) => {
+    set((state) => {
+      const filtered = state.featuredRepos.filter((r) => r.id !== repo.id);
+      return {
+        featuredRepos: [repo, ...filtered],
+        searchedRepo: repo,
+        selectedRepoId: repo.id,
+      };
+    });
+  },
 
   addSearchedRepo: (url) => {
     const newRepo = createDynamicRepo(url);
@@ -41,6 +53,16 @@ export const useGalaxyStore = create<GalaxyStore>((set, get) => ({
   },
 
   getRepoById: (id) => {
-    return get().featuredRepos.find(r => r.id === id);
+    if (!id) return undefined;
+    const cleanId = decodeURIComponent(id).toLowerCase().trim();
+    const cleanSlug = cleanId.replace(/[^a-z0-9]/g, '-');
+    return get().featuredRepos.find((r) => {
+      const rId = r.id.toLowerCase();
+      const rName = r.name.toLowerCase();
+      const rSlug = rId.replace(/[^a-z0-9]/g, '-');
+      return rId === cleanId || rName === cleanId || rSlug === cleanSlug || rId.endsWith(cleanId);
+    });
   }
+
 }));
+

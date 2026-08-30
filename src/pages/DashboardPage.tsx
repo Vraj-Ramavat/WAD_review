@@ -5,8 +5,10 @@ import { useRepoStore } from '../store/useRepoStore';
 import { useViewStore } from '../store/useViewStore';
 
 export const DashboardPage: React.FC = () => {
-  const { repoId } = useParams<{ repoId: string }>();
+  const params = useParams();
+  const repoId = params['*'] || params.repoId;
   const navigate = useNavigate();
+
 
   const currentRepo = useRepoStore((state) => state.currentRepo);
   const loadRepoById = useRepoStore((state) => state.loadRepoById);

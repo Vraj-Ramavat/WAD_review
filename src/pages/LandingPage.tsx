@@ -154,4 +154,5 @@ export const LandingPage: React.FC = () => {
       </footer>
     </div>
   );
+
 };

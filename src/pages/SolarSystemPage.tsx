@@ -10,8 +10,10 @@ import { DetailDrawer } from '../components/ui/DetailDrawer';
 import { ChatAssistant } from '../components/ui/ChatAssistant';
 
 export const SolarSystemPage: React.FC = () => {
-  const { repoId } = useParams<{ repoId: string }>();
+  const params = useParams();
+  const repoId = params['*'] || params.repoId;
   const navigate = useNavigate();
+
 
   const currentRepo = useRepoStore((state) => state.currentRepo);
   const loadRepoById = useRepoStore((state) => state.loadRepoById);
