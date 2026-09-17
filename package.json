@@ -1,0 +1,14 @@
+{
+  "name": "codegalaxy-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CodeGalaxy — 3D WebGL Code Architecture & Repository Galaxy Visualizer (Full-Stack)",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:backend": "npm --prefix backend run build",
+    "build": "npm --prefix frontend run build && npm --prefix backend run build"
+  }
+}
