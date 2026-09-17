@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CodeGalaxy — Interactive 3D Repository Visualizer with JavaScript Form Validation.">
+    <title>CodeGalaxy — Interactive Repository Analyzer (JavaScript Submission)</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Starfield Glow -->
+    <div class="cosmic-glow cosmic-glow-top"></div>
+    <div class="cosmic-glow cosmic-glow-bottom"></div>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-brand">
+                <span class="brand-icon">🪐</span>
+                <span class="brand-text">Code<span class="accent-amber">Galaxy</span></span>
+            </a>
+            <nav class="nav-menu">
+                <a href="#analyzer-form-section" class="nav-link">Analyze Form</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="#analyzer-form-section" class="btn btn-primary">Start Analysis</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section with Interactive Form -->
+        <section id="analyzer-form-section" class="hero-section">
+            <div class="container hero-container">
+                <div class="badge-pill">
+                    <span class="badge-dot"></span>
+                    <span>JavaScript Interactive Form &bull; Live Validation Engine</span>
+                </div>
+
+                <h1 class="hero-title">
+                    Every repository is a galaxy.<br>
+                    <span class="gradient-text">Analyze Yours in 3D.</span>
+                </h1>
+
+                <p class="hero-description">
+                    Enter your repository coordinates below. Our JavaScript parser verifies your parameters, validates GitHub endpoints, and launches real-time AST telemetry.
+                </p>
+
+                <!-- Interactive Analysis Form -->
+                <div class="form-container glass-card">
+                    <div class="form-header">
+                        <div class="form-header-title">
+                            <span class="terminal-dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </span>
+                            <h3>Repository Telemetry &amp; Analysis Form</h3>
+                        </div>
+                        <span class="form-status-tag" id="liveStatusTag">Awaiting Input</span>
+                    </div>
+
+                    <form id="repoAnalyzeForm" novalidate>
+                        <!-- Repo URL Input -->
+                        <div class="form-group">
+                            <label for="repoUrl" class="form-label">
+                                GitHub Repository URL / Slug <span class="required">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">🔗</span>
+                                <input 
+                                    type="text" 
+                                    id="repoUrl" 
+                                    name="repoUrl" 
+                                    class="form-input" 
+                                    placeholder="e.g. facebook/react or https://github.com/torvalds/linux" 
+                                    autocomplete="off"
+                                    required
+                                >
+                            </div>
+                            <span class="error-msg" id="repoUrlError"></span>
+                            <div class="live-preview" id="repoLivePreview">Parsed Repo: <em>None</em></div>
+                        </div>
+
+                        <!-- Two Column Row: Branch & Email -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="branchName" class="form-label">Git Branch / Tag</label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">🌿</span>
+                                    <input 
+                                        type="text" 
+                                        id="branchName" 
+                                        name="branchName" 
+                                        class="form-input" 
+                                        placeholder="main" 
+                                        value="main"
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="developerEmail" class="form-label">
+                                    Developer Email <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">✉️</span>
+                                    <input 
+                                        type="email" 
+                                        id="developerEmail" 
+                                        name="developerEmail" 
+                                        class="form-input" 
+                                        placeholder="developer@example.com" 
+                                        required
+                                    >
+                                </div>
+                                <span class="error-msg" id="emailError"></span>
+                            </div>
+                        </div>
+
+                        <!-- Analysis Options -->
+                        <div class="form-group">
+                            <label for="scanDepth" class="form-label">Telemetry Depth</label>
+                            <select id="scanDepth" name="scanDepth" class="form-select">
+                                <option value="standard">Standard Solar Scan (Folder Planets + File Moons)</option>
+                                <option value="deep" selected>Deep Astro Scan (ML Bug Risk + Full Commit History)</option>
+                                <option value="enterprise">Full Cosmos Scan (AST Dependency Web + Churn Metrics)</option>
+                            </select>
+                        </div>
+
+                        <!-- Checkbox Option -->
+                        <div class="form-group-checkbox">
+                            <input type="checkbox" id="includeDependencies" name="includeDependencies" checked>
+                            <label for="includeDependencies">
+                                Render real-time cross-file gravitational dependency threads
+                            </label>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="button" id="resetBtn" class="btn btn-secondary">Clear Form</button>
+                            <button type="submit" id="submitBtn" class="btn btn-primary btn-large">
+                                <span id="btnText">Launch Galaxy Analysis &rarr;</span>
+                                <span id="btnSpinner" class="spinner hidden"></span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Real-Time Simulated Progress Bar -->
+                    <div id="progressContainer" class="progress-box hidden">
+                        <div class="progress-labels">
+                            <span id="progressStatusText" class="status-text">Cloning git tree...</span>
+                            <span id="progressPercentage" class="percentage-text">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="progressBarFill" class="progress-bar-fill"></div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Success Output Card -->
+                    <div id="successCard" class="success-card hidden">
+                        <div class="success-icon">✨</div>
+                        <h4 class="success-title">Galaxy Analysis Generated Successfully!</h4>
+                        <p class="success-subtitle">Interactive 3D Solar System model computed for your repository.</p>
+                        
+                        <div class="results-grid">
+                            <div class="result-box">
+                                <span class="result-label">Repository:</span>
+                                <span id="resultRepoName" class="result-value">facebook/react</span>
+                            </div>
+                            <div class="result-box">
+                                <span class="result-label">Branch:</span>
+                                <span id="resultBranch" class="result-value">main</span>
+                            </div>
+                            <div class="result-box">
+                                <span class="result-label">Planets (Folders):</span>
+                                <span id="resultPlanets" class="result-value">18 Planets</span>
+                            </div>
+                            <div class="result-box">
+                                <span class="result-label">Moons (Files):</span>
+                                <span id="resultMoons" class="result-value">420 File Moons</span>
+                            </div>
+                        </div>
+
+                        <button type="button" id="analyzeAnotherBtn" class="btn btn-primary" style="margin-top: 1.25rem;">
+                            Analyze Another Repository
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="section features-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-eyebrow">Core Capabilities</span>
+                    <h2 class="section-title">Deep Code Intelligence in 3D</h2>
+                </div>
+
+                <div class="grid grid-3">
+                    <div class="card glass-card">
+                        <div class="card-icon">🛡️</div>
+                        <h3 class="card-title">ML Bug-Risk Scoring</h3>
+                        <p class="card-description">
+                            Folders and file moons are colored along a gold-to-crimson gradient based on predictive defect-density algorithms.
+                        </p>
+                    </div>
+
+                    <div class="card glass-card">
+                        <div class="card-icon">⏳</div>
+                        <h3 class="card-title">Time-Travel Scrubber</h3>
+                        <p class="card-description">
+                            Scrub through full commit histories. Watch meteor trails and planetary rings evolve as the codebase grows over time.
+                        </p>
+                    </div>
+
+                    <div class="card glass-card">
+                        <div class="card-icon">🕸️</div>
+                        <h3 class="card-title">Dependency Web</h3>
+                        <p class="card-description">
+                            Render gravitational force threads between files across planetary orbits to visualize imports and module couplings.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section id="how-it-works" class="section workflow-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-eyebrow">Architecture</span>
+                    <h2 class="section-title">How CodeGalaxy Works</h2>
+                </div>
+
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">01</div>
+                        <h4 class="step-title">Form Input &amp; Validation</h4>
+                        <p class="step-text">JavaScript validates GitHub repository pattern and verifies parameters in real time.</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">02</div>
+                        <h4 class="step-title">AST &amp; Churn Computation</h4>
+                        <p class="step-text">Calculates lines of code (LOC), module couplings, and commits.</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">03</div>
+                        <h4 class="step-title">WebGL 3D Synthesis</h4>
+                        <p class="step-text">Generates 3D Sun, orbits, planets, and moons.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <span class="brand-icon">🪐</span>
+                <span class="brand-text">Code<span class="accent-amber">Galaxy</span></span>
+                <p class="footer-tagline">JavaScript Form Handling &amp; Validation Submission.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 CodeGalaxy Project. Web Application Development (WAD) Submission.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Validation & Interaction Script -->
+    <script src="script.js"></script>
+</body>
+</html>

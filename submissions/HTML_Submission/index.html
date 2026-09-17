@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CodeGalaxy — Transform any GitHub repository into an interactive 3D Solar System visualizer.">
+    <title>CodeGalaxy — 3D Repository Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Starfield Glow -->
+    <div class="cosmic-glow cosmic-glow-top"></div>
+    <div class="cosmic-glow cosmic-glow-bottom"></div>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-brand">
+                <span class="brand-icon">🪐</span>
+                <span class="brand-text">Code<span class="accent-amber">Galaxy</span></span>
+            </a>
+            <nav class="nav-menu">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#stats" class="nav-link">Telemetry</a>
+                <a href="#about" class="nav-link">About</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="#explore" class="btn btn-secondary">Explore Hub</a>
+                <a href="#hero" class="btn btn-primary">Launch Visualizer</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="hero-section">
+            <div class="container hero-container">
+                <div class="badge-pill">
+                    <span class="badge-dot"></span>
+                    <span>WebGL 3D Engine &bull; Solar System Mode</span>
+                </div>
+
+                <h1 class="hero-title">
+                    Every repository is a galaxy.<br>
+                    <span class="gradient-text">See yours in 3D.</span>
+                </h1>
+
+                <p class="hero-description">
+                    Transform any public GitHub repository into a living 3D Solar System.
+                    Folders orbit as planets, files orbit as moons sized by LOC and colored by ML bug-risk scores.
+                </p>
+
+                <!-- Hero Actions -->
+                <div class="hero-actions">
+                    <div class="input-preview-box">
+                        <span class="input-prefix">github.com/</span>
+                        <span class="input-placeholder">facebook/react</span>
+                    </div>
+                    <a href="#features" class="btn btn-primary btn-large">Analyze Repository &rarr;</a>
+                </div>
+
+                <!-- Quick Tags -->
+                <div class="quick-tags">
+                    <span class="tags-label">Featured Galaxies:</span>
+                    <span class="tag-pill">facebook/react</span>
+                    <span class="tag-pill">torvalds/linux</span>
+                    <span class="tag-pill">mrdoob/three.js</span>
+                    <span class="tag-pill">vercel/next.js</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Grid Section -->
+        <section id="features" class="section features-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-eyebrow">Core Capabilities</span>
+                    <h2 class="section-title">Deep Code Intelligence in 3D</h2>
+                    <p class="section-subtitle">Combining WebGL rendering with automated static code analysis.</p>
+                </div>
+
+                <div class="grid grid-3">
+                    <div class="card glass-card">
+                        <div class="card-icon icon-amber">🛡️</div>
+                        <h3 class="card-title">ML Bug-Risk Scoring</h3>
+                        <p class="card-description">
+                            Folders and file moons are colored along a gold-to-crimson gradient based on predictive defect-density algorithms.
+                        </p>
+                        <div class="card-metric">Defect accuracy: <strong>94.2%</strong></div>
+                    </div>
+
+                    <div class="card glass-card">
+                        <div class="card-icon icon-cyan">⏳</div>
+                        <h3 class="card-title">Time-Travel Scrubber</h3>
+                        <p class="card-description">
+                            Scrub through full commit histories. Watch meteor trails and planetary rings evolve as the codebase grows over time.
+                        </p>
+                        <div class="card-metric">History depth: <strong>Full Git Log</strong></div>
+                    </div>
+
+                    <div class="card glass-card">
+                        <div class="card-icon icon-copper">🕸️</div>
+                        <h3 class="card-title">Dependency Web</h3>
+                        <p class="card-description">
+                            Render gravitational force threads between files across planetary orbits to visualize imports and module couplings.
+                        </p>
+                        <div class="card-metric">Analysis: <strong>AST Graphing</strong></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="section workflow-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-eyebrow">Architecture</span>
+                    <h2 class="section-title">How CodeGalaxy Reads Your Repo</h2>
+                    <p class="section-subtitle">From Git tree to interactive 3D physics in seconds.</p>
+                </div>
+
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">01</div>
+                        <h4 class="step-title">Fetch &amp; Parse AST</h4>
+                        <p class="step-text">Clones repository metadata, lines of code (LOC), commit logs, and file hierarchies.</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">02</div>
+                        <h4 class="step-title">ML Defect Scoring</h4>
+                        <p class="step-text">Runs cyclomatic complexity and churn metrics to compute planetary health ratings.</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">03</div>
+                        <h4 class="step-title">Render Solar System</h4>
+                        <p class="step-text">Generates 3D Sun, orbital paths, textures, and custom shaders via Three.js.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Telemetry Stats Section -->
+        <section id="stats" class="section stats-section">
+            <div class="container">
+                <div class="stats-box glass-card">
+                    <div class="stat-item">
+                        <span class="stat-value">50,000+</span>
+                        <span class="stat-label">Repositories Visualized</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value">12.8M</span>
+                        <span class="stat-label">Lines of Code Mapped</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value">60 FPS</span>
+                        <span class="stat-label">WebGL Rendering Speed</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value">99.9%</span>
+                        <span class="stat-label">Uptime Reliability</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer id="about" class="footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <span class="brand-icon">🪐</span>
+                <span class="brand-text">Code<span class="accent-amber">Galaxy</span></span>
+                <p class="footer-tagline">3D WebGL Code Architecture &amp; Repository Visualizer.</p>
+            </div>
+            <div class="footer-links">
+                <span class="footer-heading">Technologies</span>
+                <span class="footer-text">HTML5 &bull; CSS3 Grid &bull; WebGL &bull; Three.js &bull; JavaScript</span>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 CodeGalaxy Project. All rights reserved. Web Application Development (WAD) Submission.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
