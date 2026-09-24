@@ -9,7 +9,7 @@ import { AuthenticatedRequest } from '../middleware/auth.middleware.js';
 
 export async function analyzeRepo(req: AuthenticatedRequest, res: Response) {
   try {
-    const rawUrl = req.body?.url || (req.query?.url as string);
+    const rawUrl = req.body?.url || req.body?.repoUrl || (req.query?.url as string) || (req.query?.repoUrl as string);
     if (!rawUrl) {
       return res.status(400).json({ error: 'Repository URL is required.' });
     }
@@ -109,7 +109,7 @@ export async function analyzeRepo(req: AuthenticatedRequest, res: Response) {
 
 export async function processJob(req: Request, res: Response) {
   try {
-    const rawUrl = req.body?.url;
+    const rawUrl = req.body?.url || req.body?.repoUrl;
     if (!rawUrl) {
       return res.status(400).json({ error: 'Repository URL is required.' });
     }

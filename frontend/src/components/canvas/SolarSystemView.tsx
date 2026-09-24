@@ -148,6 +148,9 @@ export const SolarSystemView: React.FC = () => {
         );
       })}
 
+      {/* ASTEROID BELT: Unused Assets & Architecture Debris Orbit */}
+      <AsteroidBelt innerRadius={28} outerRadius={34} count={90} />
+
       {/* DEPENDENCY WEB CONNECTIVE THREADS */}
       {viewMode === 'dependency' && (
         <DependencyWebLines
@@ -156,6 +159,72 @@ export const SolarSystemView: React.FC = () => {
         />
       )}
     </>
+  );
+};
+
+// Component creating an authentic 3D Asteroid Belt between core and outer orbits
+interface AsteroidBeltProps {
+  innerRadius: number;
+  outerRadius: number;
+  count: number;
+}
+
+const AsteroidBelt: React.FC<AsteroidBeltProps> = ({ innerRadius, outerRadius, count }) => {
+  const beltRef = useRef<THREE.Group>(null);
+
+  // Generate randomized asteroid coordinates and rotation speeds
+  const asteroids = React.useMemo(() => {
+    const list: Array<{
+      position: [number, number, number];
+      scale: number;
+      rotation: [number, number, number];
+      color: string;
+    }> = [];
+    const colors = ['#8C7355', '#A08060', '#6B5844', '#C4A482', '#4A3B32'];
+
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2 + (Math.random() * 0.1 - 0.05);
+      const r = innerRadius + Math.random() * (outerRadius - innerRadius);
+      const x = Math.cos(angle) * r;
+      const z = Math.sin(angle) * r;
+      const y = (Math.random() - 0.5) * 2.5;
+      const scale = 0.15 + Math.random() * 0.35;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+
+      list.push({
+        position: [x, y, z],
+        scale,
+        rotation: [Math.random() * Math.PI, Math.random() * Math.PI, 0],
+        color,
+      });
+    }
+    return list;
+  }, [innerRadius, outerRadius, count]);
+
+  useFrame((_, delta) => {
+    if (beltRef.current) {
+      beltRef.current.rotation.y += delta * 0.05;
+    }
+  });
+
+  return (
+    <group ref={beltRef}>
+      {asteroids.map((ast, idx) => (
+        <mesh
+          key={idx}
+          position={ast.position}
+          rotation={ast.rotation}
+          scale={ast.scale}
+        >
+          <dodecahedronGeometry args={[1, 0]} />
+          <meshStandardMaterial
+            color={ast.color}
+            roughness={0.9}
+            metalness={0.1}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 };
 
