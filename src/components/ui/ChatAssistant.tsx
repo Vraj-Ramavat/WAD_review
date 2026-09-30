@@ -49,8 +49,10 @@ export const ChatAssistant: React.FC = () => {
       {/* Floating brass orb when collapsed */}
       {!isChatOpen && (
         <button
+          type="button"
           onClick={toggleChat}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full instrument-panel border-brass/50 text-amber shadow-2xl hover:scale-105 transition-all group cursor-pointer"
+          aria-label="Open Galaxy AI chat"
+          className="solar-chat-button ui-interactive fixed z-50 flex items-center gap-2 px-4 py-2.5 rounded-full instrument-panel border-brass/50 text-amber shadow-2xl hover:scale-105 transition-all group cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber"
         >
           <div className="w-6 h-6 rounded-full bg-amber/20 border border-amber flex items-center justify-center group-hover:rotate-12 transition-transform">
             <Sparkles className="w-3.5 h-3.5 text-amber" />
@@ -61,7 +63,7 @@ export const ChatAssistant: React.FC = () => {
 
       {/* Docked Chat Drawer when expanded */}
       {isChatOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[480px] z-50 rounded-md instrument-panel font-mono text-xs flex flex-col justify-between shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
+        <section className="solar-chat-drawer ui-interactive fixed z-50 rounded-md instrument-panel font-mono text-xs flex flex-col justify-between shadow-2xl animate-in slide-in-from-bottom-4 duration-300" aria-label="Galaxy AI chat">
           {/* Header */}
           <div className="flex items-center justify-between p-3 border-b border-brass/30">
             <div className="flex items-center gap-2 text-amber font-semibold">
@@ -69,7 +71,9 @@ export const ChatAssistant: React.FC = () => {
               <span className="font-sans">Galaxy AI Copilot</span>
             </div>
             <button
+              type="button"
               onClick={toggleChat}
+              aria-label="Close Galaxy AI chat"
               className="p-1 text-slate hover:text-starwhite rounded transition-colors"
             >
               <X className="w-4 h-4" />
@@ -79,18 +83,21 @@ export const ChatAssistant: React.FC = () => {
           {/* Quick prompts */}
           <div className="px-3 py-2 bg-deepspace/60 border-b border-brass/20 flex gap-1.5 overflow-x-auto text-[10px] no-scrollbar">
             <button
+              type="button"
               onClick={() => handleSend('Which files have high risk?')}
               className="px-2 py-1 rounded bg-brass/10 hover:bg-brass/20 border border-brass/30 text-amber whitespace-nowrap flex items-center gap-1"
             >
               <AlertTriangle className="w-3 h-3 text-copper" /> Riskiest Files
             </button>
             <button
+              type="button"
               onClick={() => handleSend('Who is top contributor?')}
               className="px-2 py-1 rounded bg-brass/10 hover:bg-brass/20 border border-brass/30 text-slate hover:text-starwhite whitespace-nowrap flex items-center gap-1"
             >
               <Users className="w-3 h-3 text-brass" /> Top Authors
             </button>
             <button
+              type="button"
               onClick={() => handleSend('Show dependency web info')}
               className="px-2 py-1 rounded bg-brass/10 hover:bg-brass/20 border border-brass/30 text-databhlue whitespace-nowrap flex items-center gap-1"
             >
@@ -132,16 +139,18 @@ export const ChatAssistant: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask Galaxy AI about codebase..."
+              aria-label="Message Galaxy AI"
               className="flex-1 bg-deepspace border border-brass/30 rounded px-3 py-1.5 text-xs text-starwhite placeholder-slate focus:outline-none focus:border-amber font-sans"
             />
             <button
               type="submit"
+              aria-label="Send message"
               className="p-2 rounded bg-amber text-void font-bold hover:bg-amber/90 transition-colors"
             >
               <Send className="w-3.5 h-3.5" />
             </button>
           </form>
-        </div>
+        </section>
       )}
     </>
   );

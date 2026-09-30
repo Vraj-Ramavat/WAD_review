@@ -3,14 +3,11 @@ import { Layers, Network, Users, RotateCcw } from 'lucide-react';
 import { useViewStore } from '../../store/useViewStore';
 import { ViewMode } from '../../types';
 
-interface ViewModeToggleProps {
-  onResetCamera?: () => void;
-}
-
-export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({ onResetCamera }) => {
+export const ViewModeToggle: React.FC = () => {
   const viewMode = useViewStore((state) => state.viewMode);
   const setViewMode = useViewStore((state) => state.setViewMode);
   const resetView = useViewStore((state) => state.resetView);
+  const requestCameraReset = useViewStore((state) => state.requestCameraReset);
 
   const handleToggle = (mode: ViewMode) => {
     setViewMode(mode);
@@ -18,19 +15,21 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({ onResetCamera })
 
   const handleReset = () => {
     resetView();
-    if (onResetCamera) onResetCamera();
+    requestCameraReset();
   };
 
   return (
-    <div className="fixed top-16 right-6 z-40 flex items-center gap-1 p-1 rounded-md instrument-panel font-mono text-xs">
+    <div className="solar-view-toggle ui-interactive fixed z-40 flex items-center gap-1 p-1 rounded-md instrument-panel font-mono text-xs">
       <button
         onClick={() => handleToggle('default')}
+        title="Default view"
+        aria-label="Default view"
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded relative transition-all ${
           viewMode === 'default' ? 'text-amber font-semibold' : 'text-slate hover:text-starwhite'
         }`}
       >
         <Layers className="w-3.5 h-3.5" />
-        <span>Default</span>
+        <span className="view-mode-label">Default</span>
         {viewMode === 'default' && (
           <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-amber rounded-full shadow-[0_0_6px_#E8A33D]" />
         )}
@@ -38,12 +37,14 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({ onResetCamera })
 
       <button
         onClick={() => handleToggle('dependency')}
+        title="Dependency Web"
+        aria-label="Dependency Web"
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded relative transition-all ${
           viewMode === 'dependency' ? 'text-databhlue font-semibold' : 'text-slate hover:text-starwhite'
         }`}
       >
         <Network className="w-3.5 h-3.5" />
-        <span>Dependency Web</span>
+        <span className="view-mode-label">Dependency Web</span>
         {viewMode === 'dependency' && (
           <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-databhlue rounded-full shadow-[0_0_6px_#4C7A9E]" />
         )}
@@ -51,12 +52,14 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({ onResetCamera })
 
       <button
         onClick={() => handleToggle('ownership')}
+        title="Ownership Map"
+        aria-label="Ownership Map"
         className={`flex items-center gap-1.5 px-3 py-1.5 rounded relative transition-all ${
           viewMode === 'ownership' ? 'text-brass font-semibold' : 'text-slate hover:text-starwhite'
         }`}
       >
         <Users className="w-3.5 h-3.5" />
-        <span>Ownership Map</span>
+        <span className="view-mode-label">Ownership Map</span>
         {viewMode === 'ownership' && (
           <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-brass rounded-full shadow-[0_0_6px_#B08D57]" />
         )}
@@ -67,6 +70,7 @@ export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({ onResetCamera })
       <button
         onClick={handleReset}
         title="Reset Camera & Selection"
+        aria-label="Reset camera and selection"
         className="p-1.5 text-slate hover:text-amber rounded transition-colors"
       >
         <RotateCcw className="w-3.5 h-3.5" />

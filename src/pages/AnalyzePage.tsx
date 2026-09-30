@@ -33,7 +33,9 @@ export const AnalyzePage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(true);
 
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollIntervalRef = useRef<number | null>(null);
+  const completionTimeoutRef = useRef<number | null>(null);
+  const pollFailuresRef = useRef(0);
 
   useEffect(() => {
     setCanvasMode('ambient');
@@ -47,6 +49,7 @@ export const AnalyzePage: React.FC = () => {
       setIsPolling(true);
       setCurrentStage(0);
       setProgressPercent(10);
+      pollFailuresRef.current = 0;
 
       try {
         // 1. Kick off real backend analysis job
@@ -82,7 +85,7 @@ export const AnalyzePage: React.FC = () => {
         }
 
         // 3. Poll status every 1.5 seconds
-        pollIntervalRef.current = setInterval(async () => {
+        pollIntervalRef.current = window.setInterval(async () => {
           if (isCancelled) return;
 
           try {
@@ -96,7 +99,7 @@ export const AnalyzePage: React.FC = () => {
             }
 
             if (statusData.status === 'failed') {
-              if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+              if (pollIntervalRef.current) window.clearInterval(pollIntervalRef.current);
               setIsPolling(false);
               setErrorMessage(statusData.error || 'Repository analysis failed');
               return;
@@ -114,7 +117,7 @@ export const AnalyzePage: React.FC = () => {
 
             // Completed!
             if (statusData.status === 'done') {
-              if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+              if (pollIntervalRef.current) window.clearInterval(pollIntervalRef.current);
               setIsPolling(false);
 
               let finalRepo: FeaturedRepo;
@@ -125,7 +128,7 @@ export const AnalyzePage: React.FC = () => {
                 finalRepo = addSearchedRepo(rawUrl);
               }
 
-              setTimeout(() => {
+              completionTimeoutRef.current = window.setTimeout(() => {
                 if (isCancelled) return;
                 setCurrentRepo(finalRepo);
                 setHasEnteredSystem(true);
@@ -133,26 +136,34 @@ export const AnalyzePage: React.FC = () => {
                 navigate(`/galaxy/${finalRepo.id}`);
               }, 600);
             }
-          } catch (pollErr: any) {
-            console.warn('Polling status warning:', pollErr.message);
+          } catch (pollErr) {
+            pollFailuresRef.current += 1;
+            const message = pollErr instanceof Error ? pollErr.message : 'Unknown status error';
+            console.warn('Polling status warning:', message);
+            if (pollFailuresRef.current >= 4) {
+              if (pollIntervalRef.current) window.clearInterval(pollIntervalRef.current);
+              setIsPolling(false);
+              setErrorMessage(`Lost contact with the analysis service: ${message}`);
+            }
           }
         }, 1500);
-      } catch (err: any) {
+      } catch (err) {
         if (isCancelled) return;
-        console.warn('Backend endpoint unavailable, using dev fallback timer:', err.message);
+        const message = err instanceof Error ? err.message : 'Unknown analysis error';
+        console.warn('Backend endpoint unavailable, using dev fallback timer:', message);
 
         // Offline / dev fallback timer
         let step = 0;
-        pollIntervalRef.current = setInterval(() => {
+        pollIntervalRef.current = window.setInterval(() => {
           step += 1;
           setCurrentStage(step);
           setProgressPercent(Math.round(((step + 1) / STAGES.length) * 100));
 
           if (step >= STAGES.length - 1) {
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+            if (pollIntervalRef.current) window.clearInterval(pollIntervalRef.current);
             setIsPolling(false);
 
-            setTimeout(() => {
+            completionTimeoutRef.current = window.setTimeout(() => {
               const fallbackRepo = addSearchedRepo(rawUrl);
               setCurrentRepo(fallbackRepo);
               setHasEnteredSystem(true);
@@ -168,12 +179,13 @@ export const AnalyzePage: React.FC = () => {
 
     return () => {
       isCancelled = true;
-      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      if (pollIntervalRef.current) window.clearInterval(pollIntervalRef.current);
+      if (completionTimeoutRef.current) window.clearTimeout(completionTimeoutRef.current);
     };
   }, [rawUrl, token, addSearchedRepo, saveFetchedRepo, setCurrentRepo, setHasEnteredSystem, setCanvasMode, navigate]);
 
   return (
-    <div className="ui-overlay min-h-screen flex items-center justify-center p-6 text-starwhite font-mono">
+    <div className="ui-overlay min-h-screen flex items-center justify-center px-4 sm:px-6 pt-24 pb-8 text-starwhite font-mono">
       <div className="max-w-xl w-full p-8 rounded-md instrument-panel border-amber/40 shadow-2xl space-y-6 ui-interactive">
         <div className="flex items-center justify-between border-b border-brass/30 pb-4">
           <div className="flex items-center gap-2 text-amber font-semibold">

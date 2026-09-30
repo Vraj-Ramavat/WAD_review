@@ -7,6 +7,7 @@
     background-color: #05070D;
     color: #F4F2ED;
     font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -63,4 +64,103 @@
 
 .ui-interactive {
   pointer-events: auto;
+}
+
+button, a, input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid #E8A33D;
+  outline-offset: 2px;
+}
+
+.app-navbar {
+  top: 1rem;
+  right: 1.5rem;
+  max-width: calc(100vw - 3rem);
+  pointer-events: auto;
+}
+
+.solar-health { top: 1rem; left: 1.5rem; }
+.solar-back-button { top: 5.25rem; left: 1.5rem; }
+.solar-view-toggle { top: 5.25rem; right: 1.5rem; }
+.solar-detail-drawer {
+  top: 8.75rem;
+  right: 1.5rem;
+  bottom: 7rem;
+  width: 21rem;
+  max-width: calc(100vw - 3rem);
+  overflow-y: auto;
+}
+.solar-detail-drawer.solar-detail--chat-open { right: 26.5rem; }
+.solar-timeline { left: 1.5rem; right: 23.5rem; bottom: 1.5rem; }
+.solar-chat-button { right: 1.5rem; bottom: 1.5rem; }
+.solar-chat-drawer {
+  right: 1.5rem;
+  bottom: 1.5rem;
+  width: 24rem;
+  height: min(30rem, calc(100vh - 8.75rem));
+  max-width: calc(100vw - 3rem);
+}
+
+@media (max-width: 1180px) {
+  .nav-label { display: none; }
+  .solar-detail-drawer.solar-detail--chat-open { display: none; }
+  .solar-timeline { right: 18rem; }
+}
+
+@media (max-width: 820px) {
+  .app-navbar { top: .75rem; right: .75rem; max-width: calc(100vw - 1.5rem); }
+  .app-navbar a, .app-navbar button { padding-left: .55rem; padding-right: .55rem; }
+  .app-navbar > div:nth-last-child(2) { margin-left: 0; margin-right: 0; }
+  .solar-health { top: 4.25rem; left: .75rem; }
+  .solar-health > button { padding: .5rem .75rem; }
+  .solar-back-button { top: 8.3rem; left: .75rem; }
+  .solar-view-toggle { top: 4.25rem; right: .75rem; }
+  .view-mode-label { display: none; }
+  .solar-detail-drawer {
+    top: auto;
+    left: .75rem;
+    right: .75rem;
+    bottom: 6.8rem;
+    width: auto;
+    max-width: none;
+    max-height: min(58vh, 30rem);
+  }
+  .solar-timeline { left: .75rem; right: .75rem; bottom: .75rem; }
+  .solar-timeline > div:first-child > div:last-child { max-width: 48%; }
+  .solar-chat-button { right: .75rem; bottom: 7rem; }
+  .solar-chat-drawer {
+    left: .75rem;
+    right: .75rem;
+    bottom: 6.8rem;
+    width: auto;
+    max-width: none;
+    height: min(30rem, calc(100vh - 11.5rem));
+  }
+}
+
+@media (max-width: 520px) {
+  .app-navbar { justify-content: center; width: calc(100vw - 1.5rem); }
+  .solar-health { top: 4.25rem; max-width: 55vw; }
+  .solar-health > button > div:first-child div:first-child { display: none; }
+  .solar-health > button { gap: .5rem; }
+  .solar-health > button > div:nth-child(2) { margin-left: 0; margin-right: 0; }
+  .solar-back-button { top: 8rem; }
+  .solar-back-button span { display: none; }
+  .solar-view-toggle { top: 4.25rem; }
+  .solar-timeline { padding: .6rem; }
+  .solar-timeline > div:first-child { display: none; }
+  .solar-detail-drawer { padding: 1rem; max-height: 54vh; }
+  .solar-chat-button span { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }

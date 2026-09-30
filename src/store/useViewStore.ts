@@ -9,6 +9,7 @@ interface ViewStore {
   timelinePosition: number; // 0 to 1
   isPlayingTimeline: boolean;
   isChatOpen: boolean;
+  cameraResetRequest: number;
   hasEnteredSystem: boolean; // Flag to prevent zoom sequence replay when navigating back from dashboard
   chatMessages: ChatMessage[];
 
@@ -19,6 +20,8 @@ interface ViewStore {
   setTimelinePosition: (pos: number) => void;
   setIsPlayingTimeline: (playing: boolean) => void;
   toggleChat: () => void;
+  setChatOpen: (open: boolean) => void;
+  requestCameraReset: () => void;
   setHasEnteredSystem: (entered: boolean) => void;
   addChatMessage: (text: string, sender: 'user' | 'assistant') => void;
   resetView: () => void;
@@ -32,6 +35,7 @@ export const useViewStore = create<ViewStore>((set) => ({
   timelinePosition: 1.0, // Default at latest commit
   isPlayingTimeline: false,
   isChatOpen: false,
+  cameraResetRequest: 0,
   hasEnteredSystem: false,
   chatMessages: [
     {
@@ -49,6 +53,8 @@ export const useViewStore = create<ViewStore>((set) => ({
   setTimelinePosition: (pos) => set({ timelinePosition: Math.max(0, Math.min(1, pos)) }),
   setIsPlayingTimeline: (playing) => set({ isPlayingTimeline: playing }),
   toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
+  setChatOpen: (open) => set({ isChatOpen: open }),
+  requestCameraReset: () => set((state) => ({ cameraResetRequest: state.cameraResetRequest + 1 })),
   setHasEnteredSystem: (entered) => set({ hasEnteredSystem: entered }),
 
   addChatMessage: (text, sender) => set((state) => ({

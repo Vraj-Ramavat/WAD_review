@@ -1,9 +1,9 @@
 import React, { useMemo, useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { FeaturedRepo } from '../../types';
-import { getStarPointTexture } from '../../utils/textureUtils';
+import { getGalaxyPointTexture, hashString, seededRandom } from '../../utils/textureUtils';
 
 interface RepoGalaxyMarkerProps {
   repo: FeaturedRepo;
@@ -12,88 +12,56 @@ interface RepoGalaxyMarkerProps {
   onClick: (repo: FeaturedRepo) => void;
 }
 
-function hashString(str: string) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
-function generateMiniSpiralGalaxy(repoId: string, count = 240) {
+function generateMiniSpiralGalaxy(repoId: string, count = 460) {
   const positions = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
-
   const hash = hashString(repoId);
-  const arms = 2;
+  const random = seededRandom(hash);
+  const arms = 2 + (hash % 3);
+  const coreColor = new THREE.Color(repoId.includes('searched') || hash % 3 === 0 ? '#f0bd6b' : '#a8cbe0');
+  const armColor = new THREE.Color('#d8e1e5');
+  const edgeColor = new THREE.Color('#7898ad');
+  const vertexColor = new THREE.Color();
 
-  const coreColor = repoId.includes('searched') || hash % 3 === 0
-    ? new THREE.Color('#E8A33D')
-    : new THREE.Color('#4C7A9E');
+  for (let index = 0; index < count; index += 1) {
+    const isCore = index < count * 0.22;
+    const armIndex = index % arms;
+    const normalizedRadius = isCore ? random() * 0.22 : 0.18 + Math.pow(random(), 0.76) * 0.82;
+    const distance = 0.18 + normalizedRadius * 3.1;
+    const angle = isCore
+      ? random() * Math.PI * 2
+      : distance * 2.05 + armIndex * (Math.PI * 2 / arms) + (random() - 0.5) * 0.28;
+    const scatter = isCore ? 0.6 : distance * 0.2;
+    positions[index * 3] = Math.cos(angle) * distance + (random() - 0.5) * scatter;
+    positions[index * 3 + 1] = (random() - 0.5) * (isCore ? 0.5 : 0.22);
+    positions[index * 3 + 2] = Math.sin(angle) * distance + (random() - 0.5) * scatter;
 
-  const armEdgeColor = new THREE.Color('#B08D57');
-  const outerEdgeColor = new THREE.Color('#8A93A6');
-
-  for (let i = 0; i < count; i++) {
-    const armIndex = i % arms;
-    const norm = i / count;
-    const distance = 0.4 + norm * 2.8;
-    const angle = distance * 2.2 + (armIndex * Math.PI);
-
-    const spreadX = (Math.random() - 0.5) * (distance * 0.25);
-    const spreadY = (Math.random() - 0.5) * 0.3;
-    const spreadZ = (Math.random() - 0.5) * (distance * 0.25);
-
-    const x = Math.cos(angle) * distance + spreadX;
-    const y = spreadY;
-    const z = Math.sin(angle) * distance + spreadZ;
-
-    positions[i * 3] = x;
-    positions[i * 3 + 1] = y;
-    positions[i * 3 + 2] = z;
-
-    const vertexColor = new THREE.Color();
-    if (norm < 0.3) {
-      vertexColor.copy(coreColor);
-    } else if (norm < 0.7) {
-      vertexColor.lerpColors(coreColor, armEdgeColor, (norm - 0.3) / 0.4);
-    } else {
-      vertexColor.lerpColors(armEdgeColor, outerEdgeColor, (norm - 0.7) / 0.3);
-    }
-
-    colors[i * 3] = vertexColor.r;
-    colors[i * 3 + 1] = vertexColor.g;
-    colors[i * 3 + 2] = vertexColor.b;
+    if (normalizedRadius < 0.28) vertexColor.lerpColors(coreColor, armColor, normalizedRadius / 0.28);
+    else vertexColor.lerpColors(armColor, edgeColor, (normalizedRadius - 0.28) / 0.72);
+    colors[index * 3] = vertexColor.r;
+    colors[index * 3 + 1] = vertexColor.g;
+    colors[index * 3 + 2] = vertexColor.b;
   }
 
   return { positions, colors };
 }
 
-export const RepoGalaxyMarker: React.FC<RepoGalaxyMarkerProps> = ({
-  repo,
-  isHovered,
-  onHover,
-  onClick,
-}) => {
+export const RepoGalaxyMarker: React.FC<RepoGalaxyMarkerProps> = ({ repo, isHovered, onHover, onClick }) => {
   const markerGroupRef = useRef<THREE.Group>(null);
   const spiralArmRef = useRef<THREE.Points>(null);
-
   const isSearched = repo.isSearched;
-  const starColor = isSearched ? '#E8A33D' : '#4C7A9E';
-  const markerScale = Math.max(0.7, Math.log10(repo.stars) * 0.32);
-
-  const spiralData = useMemo(() => generateMiniSpiralGalaxy(repo.id, 240), [repo.id]);
-  const starTexture = useMemo(() => getStarPointTexture(), []);
-
-  const rotationSpeed = useMemo(() => {
-    const seed = hashString(repo.id);
-    return 0.25 + (seed % 15) * 0.04;
-  }, [repo.id]);
+  const starColor = isSearched ? '#e8a33d' : '#709ab8';
+  const markerScale = Math.max(0.7, Math.log10(Math.max(repo.stars, 10)) * 0.32);
+  const spiralData = useMemo(() => generateMiniSpiralGalaxy(repo.id), [repo.id]);
+  const starTexture = useMemo(() => getGalaxyPointTexture(), []);
+  const rotationSpeed = useMemo(() => 0.18 + (hashString(repo.id) % 12) * 0.025, [repo.id]);
 
   useFrame((_, delta) => {
-    if (spiralArmRef.current) {
-      spiralArmRef.current.rotation.y += delta * rotationSpeed;
+    if (spiralArmRef.current) spiralArmRef.current.rotation.y += delta * rotationSpeed;
+    if (markerGroupRef.current) {
+      const target = isHovered ? markerScale * 1.16 : markerScale;
+      const next = THREE.MathUtils.lerp(markerGroupRef.current.scale.x, target, 0.1);
+      markerGroupRef.current.scale.setScalar(next);
     }
   });
 
@@ -101,13 +69,13 @@ export const RepoGalaxyMarker: React.FC<RepoGalaxyMarkerProps> = ({
     <group position={repo.position}>
       <group
         ref={markerGroupRef}
-        scale={isHovered ? markerScale * 1.3 : markerScale}
-        onClick={(e) => {
-          e.stopPropagation();
+        scale={markerScale}
+        onClick={(event) => {
+          event.stopPropagation();
           onClick(repo);
         }}
-        onPointerOver={(e) => {
-          e.stopPropagation();
+        onPointerOver={(event) => {
+          event.stopPropagation();
           onHover(repo.id);
           document.body.style.cursor = 'pointer';
         }}
@@ -116,53 +84,42 @@ export const RepoGalaxyMarker: React.FC<RepoGalaxyMarkerProps> = ({
           document.body.style.cursor = 'auto';
         }}
       >
-        {/* Central Emissive Core Sphere */}
-        <mesh scale={0.55}>
-          <sphereGeometry args={[1, 24, 24]} />
+        <mesh visible={false} scale={2.5}>
+          <sphereGeometry args={[1, 10, 10]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+        <mesh scale={0.3}>
+          <sphereGeometry args={[1, 20, 16]} />
           <meshStandardMaterial
             color={starColor}
             emissive={starColor}
-            emissiveIntensity={isHovered || isSearched ? 3.5 : 2.2}
-            roughness={0.2}
-            metalness={0.4}
+            emissiveIntensity={isHovered || isSearched ? 2.1 : 1.45}
+            roughness={0.72}
+            metalness={0}
           />
         </mesh>
-
-        {/* Inner Core Halo Shell */}
-        <mesh scale={0.95}>
-          <sphereGeometry args={[1, 16, 16]} />
-          <meshStandardMaterial
+        <mesh scale={0.62}>
+          <sphereGeometry args={[1, 16, 12]} />
+          <meshBasicMaterial
             color={starColor}
-            emissive={starColor}
-            emissiveIntensity={1.4}
             transparent
-            opacity={isHovered ? 0.4 : 0.2}
+            opacity={isHovered ? 0.2 : 0.1}
             side={THREE.BackSide}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
           />
         </mesh>
-
-        {/* Mini Procedural Spiral Galaxy Arms with Soft Radial Star Texture */}
         <points ref={spiralArmRef}>
           <bufferGeometry>
-            <bufferAttribute
-              attach="attributes-position"
-              count={spiralData.positions.length / 3}
-              array={spiralData.positions}
-              itemSize={3}
-            />
-            <bufferAttribute
-              attach="attributes-color"
-              count={spiralData.colors.length / 3}
-              array={spiralData.colors}
-              itemSize={3}
-            />
+            <bufferAttribute attach="attributes-position" count={spiralData.positions.length / 3} array={spiralData.positions} itemSize={3} />
+            <bufferAttribute attach="attributes-color" count={spiralData.colors.length / 3} array={spiralData.colors} itemSize={3} />
           </bufferGeometry>
           <pointsMaterial
-            size={0.4}
+            size={0.27}
             map={starTexture}
             vertexColors
             transparent
-            opacity={isHovered ? 0.95 : 0.8}
+            opacity={isHovered ? 0.98 : 0.82}
             blending={THREE.AdditiveBlending}
             sizeAttenuation
             depthWrite={false}
@@ -170,14 +127,13 @@ export const RepoGalaxyMarker: React.FC<RepoGalaxyMarkerProps> = ({
         </points>
       </group>
 
-      {/* Hover Tooltip HTML Chip */}
       {isHovered && (
-        <Html distanceFactor={25} position={[0, markerScale * 2.2 + 0.8, 0]} center>
-          <div className="px-3 py-1.5 rounded instrument-panel border-brass/50 text-xs font-mono text-starwhite shadow-2xl pointer-events-none whitespace-nowrap flex flex-col items-center">
-            <span className="font-bold text-amber">🌌 {repo.name}</span>
+        <Html distanceFactor={25} position={[0, markerScale * 2.2 + 0.8, 0]} center style={{ pointerEvents: 'none' }}>
+          <div className="px-3 py-1.5 rounded instrument-panel border-brass/50 text-xs font-mono text-starwhite shadow-2xl whitespace-nowrap flex flex-col items-center">
+            <span className="font-bold text-amber">{repo.name}</span>
             <div className="flex items-center gap-2 text-[10px] text-slate mt-0.5">
-              <span>★ {repo.stars.toLocaleString()}</span>
-              <span>•</span>
+              <span>{repo.stars.toLocaleString()} stars</span>
+              <span>·</span>
               <span className="text-brass">Health {repo.healthScore}%</span>
             </div>
           </div>

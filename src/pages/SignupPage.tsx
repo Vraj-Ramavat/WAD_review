@@ -46,7 +46,7 @@ export const SignupPage: React.FC = () => {
   const displayError = localError || authError;
 
   return (
-    <div className="ui-overlay min-h-screen flex items-center justify-center p-6 text-starwhite font-mono">
+    <div className="ui-overlay min-h-screen flex items-center justify-center px-4 sm:px-6 pt-24 pb-8 text-starwhite font-mono">
       <div className="max-w-md w-full p-8 rounded-md instrument-panel border-amber/40 shadow-2xl space-y-6 ui-interactive">
         {/* Header */}
         <div className="space-y-2">

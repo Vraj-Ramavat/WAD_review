@@ -299,16 +299,28 @@ export function createDynamicRepo(repoUrl: string): FeaturedRepo {
   const shortName = parts.length > 1 ? parts[1] : parts[0] || 'custom-repo';
   const name = parts.length > 1 ? `${parts[0]}/${parts[1]}` : `github/${shortName}`;
   const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  let seed = 2166136261;
+  for (let index = 0; index < id.length; index += 1) {
+    seed ^= id.charCodeAt(index);
+    seed = Math.imul(seed, 16777619);
+  }
+  const nextValue = () => {
+    seed += 0x6d2b79f5;
+    let result = seed;
+    result = Math.imul(result ^ (result >>> 15), result | 1);
+    result ^= result + Math.imul(result ^ (result >>> 7), result | 61);
+    return ((result ^ (result >>> 14)) >>> 0) / 4294967296;
+  };
 
   return {
     id,
     name,
     shortName,
     url: repoUrl.startsWith('http') ? repoUrl : `https://github.com/${name}`,
-    stars: Math.floor(Math.random() * 45000) + 5000,
-    forks: Math.floor(Math.random() * 8000) + 800,
-    healthScore: Math.floor(Math.random() * 25) + 75,
-    riskScore: Math.floor(Math.random() * 30) + 10,
+    stars: Math.floor(nextValue() * 45000) + 5000,
+    forks: Math.floor(nextValue() * 8000) + 800,
+    healthScore: Math.floor(nextValue() * 25) + 75,
+    riskScore: Math.floor(nextValue() * 30) + 10,
     position: [0, 0, -8], // Placed front and center!
     description: `Analyzed repository for ${name}`,
     isSearched: true,

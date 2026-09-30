@@ -10,10 +10,13 @@ export const HealthBadge: React.FC<HealthBadgeProps> = ({ repo }) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="fixed top-4 left-6 z-40 font-mono">
-      <div 
+    <div className="solar-health ui-interactive fixed z-40 font-mono max-w-[calc(100vw-2rem)]">
+      <button
+        type="button"
         onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-3 px-4 py-2.5 rounded-md instrument-panel cursor-pointer hover:border-amber/50 transition-all select-none"
+        aria-expanded={expanded}
+        aria-label={`${expanded ? 'Collapse' : 'Expand'} repository health details`}
+        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-md instrument-panel cursor-pointer hover:border-amber/50 transition-all select-none text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber"
       >
         <div className="flex flex-col">
           <div className="text-xs text-slate font-sans uppercase tracking-wider">Repository</div>
@@ -32,10 +35,10 @@ export const HealthBadge: React.FC<HealthBadgeProps> = ({ repo }) => {
           </div>
           <div className="w-2.5 h-2.5 rounded-full bg-amber animate-pulse shadow-[0_0_8px_#E8A33D]" />
         </div>
-      </div>
+      </button>
 
       {expanded && (
-        <div className="mt-2 p-4 w-72 rounded-md instrument-panel text-xs space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="mt-2 p-4 w-72 max-w-full rounded-md instrument-panel text-xs space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
           <p className="text-slate font-sans leading-relaxed">{repo.description}</p>
           
           <div className="grid grid-cols-2 gap-2 pt-2 border-t border-brass/30">

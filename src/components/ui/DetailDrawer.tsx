@@ -12,6 +12,7 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({ repo }) => {
   const selectedFileId = useViewStore((state) => state.selectedFileId);
   const setSelectedPlanetId = useViewStore((state) => state.setSelectedPlanetId);
   const setSelectedFileId = useViewStore((state) => state.setSelectedFileId);
+  const isChatOpen = useViewStore((state) => state.isChatOpen);
 
   let selectedFolder: FolderPlanet | undefined;
   let selectedFile: FileItem | undefined;
@@ -36,7 +37,7 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({ repo }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed top-16 right-6 bottom-24 w-80 z-40 p-5 rounded-md instrument-panel font-mono text-xs flex flex-col justify-between shadow-2xl animate-in slide-in-from-right duration-300">
+    <aside className={`solar-detail-drawer ui-interactive fixed z-40 p-5 rounded-md instrument-panel font-mono text-xs flex flex-col justify-between shadow-2xl animate-in slide-in-from-right duration-300 ${isChatOpen ? 'solar-detail--chat-open' : ''}`} aria-label="Repository object details">
       <div>
         <div className="flex items-center justify-between pb-3 mb-4 border-b border-brass/30">
           <div className="flex items-center gap-2 text-amber font-semibold">
@@ -54,10 +55,12 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({ repo }) => {
           </div>
 
           <button
+            type="button"
             onClick={() => {
               setSelectedPlanetId(null);
               setSelectedFileId(null);
             }}
+            aria-label="Close detail drawer"
             className="p-1 text-slate hover:text-starwhite rounded transition-colors"
           >
             <X className="w-4 h-4" />
@@ -160,10 +163,14 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({ repo }) => {
                 <span className="text-[10px] text-slate uppercase block mb-2">Contained File Moons</span>
                 <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                   {selectedFolder.files.map((file) => (
-                    <div
+                    <button
+                      type="button"
                       key={file.id}
-                      onClick={() => setSelectedFileId(file.id)}
-                      className={`p-2 rounded border transition-colors cursor-pointer flex items-center justify-between ${
+                      onClick={() => {
+                        setSelectedPlanetId(selectedFolder?.id ?? null);
+                        setSelectedFileId(file.id);
+                      }}
+                      className={`w-full p-2 rounded border transition-colors cursor-pointer flex items-center justify-between text-left ${
                         selectedFileId === file.id
                           ? 'border-amber bg-amber/10 text-amber'
                           : 'border-brass/20 bg-deepspace/60 hover:border-amber/40 text-slate hover:text-starwhite'
@@ -173,7 +180,7 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({ repo }) => {
                       <span className="text-[10px] font-mono text-copper font-bold">
                         {(file.risk_score * 100).toFixed(0)}%
                       </span>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -185,6 +192,6 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({ repo }) => {
       <div className="pt-3 border-t border-brass/30 text-[10px] text-slate text-center">
         Click another planet/moon or reset camera to close detail inspect.
       </div>
-    </div>
+    </aside>
   );
 };

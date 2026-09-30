@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CodeGalaxy">
+  <defs>
+    <radialGradient id="core" cx="42%" cy="38%" r="62%">
+      <stop offset="0" stop-color="#fff3cc"/>
+      <stop offset="0.45" stop-color="#e8a33d"/>
+      <stop offset="1" stop-color="#c4573b"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#05070d"/>
+  <ellipse cx="32" cy="32" rx="25" ry="10" fill="none" stroke="#4c7a9e" stroke-width="2.5" transform="rotate(-18 32 32)"/>
+  <circle cx="32" cy="32" r="10" fill="url(#core)"/>
+  <circle cx="52" cy="24" r="3" fill="#f4f2ed"/>
+</svg>
