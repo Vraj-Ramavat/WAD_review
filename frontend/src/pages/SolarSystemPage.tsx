@@ -19,6 +19,9 @@ export const SolarSystemPage: React.FC = () => {
   const loadRepoById = useRepoStore((state) => state.loadRepoById);
   const setCanvasMode = useViewStore((state) => state.setCanvasMode);
   const setHasEnteredSystem = useViewStore((state) => state.setHasEnteredSystem);
+  const setSelectedPlanetId = useViewStore((state) => state.setSelectedPlanetId);
+  const setSelectedFileId = useViewStore((state) => state.setSelectedFileId);
+  const setChatOpen = useViewStore((state) => state.setChatOpen);
 
   // Fix #5: Guard against direct or unpopulated access
   useEffect(() => {
@@ -40,6 +43,17 @@ export const SolarSystemPage: React.FC = () => {
     setHasEnteredSystem(true);
   }, [repoId, currentRepo, loadRepoById, setCanvasMode, setHasEnteredSystem, navigate]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setSelectedPlanetId(null);
+      setSelectedFileId(null);
+      setChatOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setChatOpen, setSelectedFileId, setSelectedPlanetId]);
+
   if (!currentRepo) return null;
 
   return (
@@ -56,7 +70,7 @@ export const SolarSystemPage: React.FC = () => {
           setCanvasMode('milkyway');
           navigate('/explore');
         }}
-        className="fixed top-4 left-72 z-40 flex items-center gap-1.5 px-3 py-2 rounded-md instrument-panel border-brass/40 text-xs font-mono text-slate hover:text-amber transition-colors ui-interactive"
+        className="solar-back-button fixed z-40 flex items-center gap-1.5 px-3 py-2 rounded-md instrument-panel border-brass/40 text-xs font-mono text-slate hover:text-amber transition-colors ui-interactive focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
         <Compass className="w-3.5 h-3.5 text-databhlue" />

@@ -13,26 +13,23 @@ export const TimeTravelSlider: React.FC<TimeTravelSliderProps> = ({ commits }) =
   const setTimelinePosition = useViewStore((state) => state.setTimelinePosition);
   const setIsPlayingTimeline = useViewStore((state) => state.setIsPlayingTimeline);
 
-  // Auto playback interval
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlayingTimeline) {
-      interval = setInterval(() => {
-        setTimelinePosition(timelinePosition >= 1 ? 0 : timelinePosition + 0.02);
-      }, 100);
-    }
-    return () => clearInterval(interval);
-  }, [isPlayingTimeline, timelinePosition, setTimelinePosition]);
+    if (!isPlayingTimeline) return;
+    const interval = window.setInterval(() => {
+      const current = useViewStore.getState().timelinePosition;
+      setTimelinePosition(current >= 1 ? 0 : current + 0.02);
+    }, 140);
+    return () => window.clearInterval(interval);
+  }, [isPlayingTimeline, setTimelinePosition]);
 
   // Determine active commit based on slider fraction
-  const currentCommitIndex = Math.min(
-    commits.length - 1,
-    Math.floor(timelinePosition * commits.length)
-  );
-  const activeCommit = commits[currentCommitIndex] || commits[commits.length - 1];
+  const currentCommitIndex = commits.length
+    ? Math.min(commits.length - 1, Math.floor(timelinePosition * commits.length))
+    : -1;
+  const activeCommit = currentCommitIndex >= 0 ? commits[currentCommitIndex] : undefined;
 
   return (
-    <div className="fixed bottom-6 left-6 right-80 z-40 p-3 rounded-md instrument-panel font-mono text-xs space-y-2">
+    <div className="solar-timeline ui-interactive fixed z-40 p-3 rounded-md instrument-panel font-mono text-xs space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-slate">
           <Clock className="w-3.5 h-3.5 text-amber" />
@@ -54,7 +51,9 @@ export const TimeTravelSlider: React.FC<TimeTravelSliderProps> = ({ commits }) =
 
       <div className="flex items-center gap-3">
         <button
+          type="button"
           onClick={() => setIsPlayingTimeline(!isPlayingTimeline)}
+          aria-label={isPlayingTimeline ? 'Pause commit playback' : 'Play commit timeline'}
           className="p-1.5 rounded-full bg-amber/20 hover:bg-amber/40 border border-amber/40 text-amber transition-colors flex-shrink-0"
         >
           {isPlayingTimeline ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
@@ -67,6 +66,7 @@ export const TimeTravelSlider: React.FC<TimeTravelSliderProps> = ({ commits }) =
           step="0.005"
           value={timelinePosition}
           onChange={(e) => setTimelinePosition(parseFloat(e.target.value))}
+          aria-label="Repository commit timeline"
           className="w-full h-1.5 bg-deepspace rounded-lg appearance-none cursor-pointer accent-amber border border-brass/30"
         />
 

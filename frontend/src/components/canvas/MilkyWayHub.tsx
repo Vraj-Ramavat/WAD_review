@@ -10,40 +10,43 @@ import { useViewStore } from '../../store/useViewStore';
 import { FeaturedRepo } from '../../types';
 import { AmbientBackground } from './AmbientBackground';
 import { RepoGalaxyMarker } from './RepoGalaxyMarker';
-import { getStarPointTexture } from '../../utils/textureUtils';
+import { getGalaxyPointTexture, seededRandom } from '../../utils/textureUtils';
 
-function generateGalaxySpiralDust(count = 2500) {
+function generateGalaxySpiralDust(count = 6200) {
   const positions = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
 
-  const colorPalette = [
-    new THREE.Color('#B08D57'), // brass
-    new THREE.Color('#4C7A9E'), // databhlue
-    new THREE.Color('#8A93A6'), // slate
-  ];
+  const random = seededRandom(0x4d494c4b);
+  const warmCore = new THREE.Color('#ffe2a7');
+  const armWhite = new THREE.Color('#dce8f1');
+  const armBlue = new THREE.Color('#86aeca');
+  const dust = new THREE.Color('#8d7255');
+  const color = new THREE.Color();
 
   for (let i = 0; i < count; i++) {
-    const arms = 2;
+    const isBulge = i < count * 0.24;
+    const arms = 4;
     const armIndex = i % arms;
-    const distance = Math.random() * 45 + 5;
-    const angle = distance * 0.15 + (armIndex * Math.PI);
-
-    const spreadX = (Math.random() - 0.5) * (distance * 0.3);
-    const spreadY = (Math.random() - 0.5) * 4;
-    const spreadZ = (Math.random() - 0.5) * (distance * 0.3);
-
-    const x = Math.cos(angle) * distance + spreadX;
-    const y = spreadY;
-    const z = Math.sin(angle) * distance + spreadZ;
+    const distance = isBulge ? Math.pow(random(), 1.7) * 12 : 5 + Math.pow(random(), 0.78) * 43;
+    const baseAngle = isBulge ? random() * Math.PI * 2 : distance * 0.17 + armIndex * (Math.PI * 2 / arms);
+    const spread = isBulge ? 4.5 : 0.9 + distance * 0.075;
+    const angle = baseAngle + (random() - 0.5) * (isBulge ? 1.4 : 0.22);
+    const radialNoise = (random() - 0.5) * spread;
+    const diskHeight = isBulge ? 5.5 * (1 - distance / 14) : 0.45 + (1 - distance / 50) * 1.7;
+    const x = Math.cos(angle) * (distance + radialNoise);
+    const y = (random() - 0.5) * diskHeight;
+    const z = Math.sin(angle) * (distance + radialNoise);
 
     positions[i * 3] = x;
     positions[i * 3 + 1] = y;
     positions[i * 3 + 2] = z;
 
-    const col = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-    colors[i * 3] = col.r;
-    colors[i * 3 + 1] = col.g;
-    colors[i * 3 + 2] = col.b;
+    if (isBulge) color.lerpColors(warmCore, armWhite, distance / 14);
+    else if (random() < 0.16) color.copy(dust);
+    else color.lerpColors(armWhite, armBlue, Math.min(1, distance / 48) * (0.45 + random() * 0.4));
+    colors[i * 3] = color.r;
+    colors[i * 3 + 1] = color.g;
+    colors[i * 3 + 2] = color.b;
   }
 
   return { positions, colors };
@@ -51,10 +54,11 @@ function generateGalaxySpiralDust(count = 2500) {
 
 function generateStarPositions(count = 500) {
   const positions: [number, number, number][] = [];
+  const random = seededRandom(0x53544152);
   for (let i = 0; i < count; i++) {
-    const x = (Math.random() - 0.5) * 140;
-    const y = (Math.random() - 0.5) * 90;
-    const z = (Math.random() - 0.5) * 140 - 20;
+    const x = (random() - 0.5) * 140;
+    const y = (random() - 0.5) * 90;
+    const z = (random() - 0.5) * 140 - 20;
     positions.push([x, y, z]);
   }
   return positions;
@@ -72,8 +76,8 @@ export const MilkyWayHub: React.FC = () => {
   const setHasEnteredSystem = useViewStore((state) => state.setHasEnteredSystem);
 
   const backgroundStarPositions = useMemo(() => generateStarPositions(500), []);
-  const spiralDustData = useMemo(() => generateGalaxySpiralDust(2500), []);
-  const starTexture = useMemo(() => getStarPointTexture(), []);
+  const spiralDustData = useMemo(() => generateGalaxySpiralDust(), []);
+  const starTexture = useMemo(() => getGalaxyPointTexture(), []);
   const [isZooming, setIsZooming] = useState(false);
 
   const hubGroupRef = useRef<THREE.Group>(null);
@@ -147,11 +151,11 @@ export const MilkyWayHub: React.FC = () => {
             />
           </bufferGeometry>
           <pointsMaterial
-            size={0.65}
+            size={0.48}
             map={starTexture}
             vertexColors
             transparent
-            opacity={0.6}
+            opacity={0.72}
             blending={THREE.AdditiveBlending}
             sizeAttenuation
             depthWrite={false}

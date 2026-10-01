@@ -23,15 +23,15 @@ export const LandingPage: React.FC = () => {
   };
 
   return (
-    <div className="ui-overlay min-h-screen flex flex-col justify-between px-6 md:px-16 py-12 text-starwhite">
+    <div className="ui-overlay min-h-screen flex flex-col justify-between px-4 sm:px-6 md:px-16 pt-24 pb-10 text-starwhite">
       {/* Hero Section */}
-      <div className="max-w-4xl mx-auto text-center mt-12 space-y-8 ui-interactive">
+      <div className="max-w-4xl mx-auto text-center mt-4 md:mt-10 space-y-6 md:space-y-8 ui-interactive">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full instrument-panel border-amber/40 text-xs font-mono text-amber">
           <Sparkles className="w-3.5 h-3.5" />
           <span>CodeGalaxy WebGL v3 — Solar Systems & Milky Way Hub</span>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-serif font-extrabold tracking-tight leading-tight text-starwhite drop-shadow-md">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif font-extrabold tracking-tight leading-tight text-starwhite drop-shadow-md">
           Every repository is a galaxy. <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber via-starwhite to-copper">
             See yours.
@@ -54,7 +54,7 @@ export const LandingPage: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="grid grid-cols-1 sm:flex items-center gap-2 w-full sm:w-auto">
             <button
               type="submit"
               className="w-full sm:w-auto px-6 py-3.5 rounded bg-amber text-void font-bold text-sm font-sans hover:bg-amber/90 transition-all flex items-center justify-center gap-2 whitespace-nowrap shadow-lg hover:shadow-amber/20"
@@ -90,7 +90,7 @@ export const LandingPage: React.FC = () => {
       </div>
 
       {/* 3-Column Feature Strip */}
-      <div className="max-w-6xl mx-auto w-full grid grid-cols-1 md:grid-cols-3 gap-6 my-16 ui-interactive">
+      <div className="max-w-6xl mx-auto w-full grid grid-cols-1 md:grid-cols-3 gap-6 my-10 md:my-16 ui-interactive">
         <div className="p-6 rounded instrument-panel space-y-3">
           <MicroCanvas type="planet" />
           <div className="flex items-center gap-2 text-amber font-serif font-bold text-lg">

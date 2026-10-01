@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Sparkles, ArrowLeft, ShieldAlert, GitCommit, Users, Activity, BarChart2 } from 'lucide-react';
+import { Sparkles, ShieldAlert, Users, Activity, BarChart2 } from 'lucide-react';
 import { useRepoStore } from '../store/useRepoStore';
 import { useViewStore } from '../store/useViewStore';
 
@@ -37,9 +37,17 @@ export const DashboardPage: React.FC = () => {
   // Flatten and rank all files by risk
   const allFiles = currentRepo.folders.flatMap((f) => f.files);
   const topRiskiestFiles = [...allFiles].sort((a, b) => b.risk_score - a.risk_score).slice(0, 5);
+  const totalCommits = Math.max(1, currentRepo.commits.length);
+  const commitPercent = (types: string[]) => (
+    currentRepo.commits.filter((commit) => types.includes(commit.type)).length / totalCommits
+  ) * 100;
+  const featurePercent = commitPercent(['feature']);
+  const bugfixPercent = commitPercent(['bugfix']);
+  const refactorPercent = commitPercent(['refactor']);
+  const maintenancePercent = commitPercent(['docs', 'chore']);
 
   return (
-    <div className="ui-overlay min-h-screen p-6 md:p-12 font-mono text-starwhite">
+    <div className="ui-overlay min-h-screen px-4 sm:px-6 md:px-12 pt-24 pb-8 font-mono text-starwhite">
       <div className="max-w-6xl mx-auto space-y-8 ui-interactive">
         {/* Header Bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 rounded-md instrument-panel border-brass/40 shadow-2xl">
@@ -96,7 +104,7 @@ export const DashboardPage: React.FC = () => {
           </div>
 
           {/* Repo Metrics Summary */}
-          <div className="p-6 rounded-md instrument-panel space-y-4 col-span-2">
+          <div className="p-6 rounded-md instrument-panel space-y-4 md:col-span-2">
             <span className="text-xs text-slate uppercase flex items-center gap-1.5">
               <BarChart2 className="w-4 h-4 text-databhlue" />
               <span>Model Telemetry & Precision Breakdown</span>
@@ -136,10 +144,10 @@ export const DashboardPage: React.FC = () => {
             <div className="pt-2">
               <span className="text-[10px] text-slate block mb-1.5">Commit Type Distribution</span>
               <div className="w-full h-3 bg-deepspace rounded-full overflow-hidden flex border border-brass/30">
-                <div className="h-full bg-amber w-[40%]" title="Features (40%)" />
-                <div className="h-full bg-copper w-[25%]" title="Bugfixes (25%)" />
-                <div className="h-full bg-databhlue w-[20%]" title="Refactors (20%)" />
-                <div className="h-full bg-brass w-[15%]" title="Docs & Chores (15%)" />
+                <div className="h-full bg-amber" style={{ width: `${featurePercent}%` }} title={`Features (${featurePercent.toFixed(0)}%)`} />
+                <div className="h-full bg-copper" style={{ width: `${bugfixPercent}%` }} title={`Bugfixes (${bugfixPercent.toFixed(0)}%)`} />
+                <div className="h-full bg-databhlue" style={{ width: `${refactorPercent}%` }} title={`Refactors (${refactorPercent.toFixed(0)}%)`} />
+                <div className="h-full bg-brass" style={{ width: `${maintenancePercent}%` }} title={`Docs & Chores (${maintenancePercent.toFixed(0)}%)`} />
               </div>
               <div className="flex gap-4 text-[10px] text-slate mt-2">
                 <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber" /> Features</span>

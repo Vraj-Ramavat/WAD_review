@@ -10,7 +10,7 @@ export const AboutPage: React.FC = () => {
   }, [setCanvasMode]);
 
   return (
-    <div className="ui-overlay min-h-screen p-6 md:p-16 font-sans text-starwhite">
+    <div className="ui-overlay min-h-screen px-4 sm:px-6 md:px-16 pt-24 pb-12 font-sans text-starwhite">
       <div className="max-w-3xl mx-auto space-y-12 ui-interactive">
         {/* Title Header */}
         <div className="space-y-4 text-center">

@@ -18,9 +18,9 @@ const PostProcessingBloom: React.FC = () => {
     const renderPass = new RenderPass(scene, camera);
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(size.width, size.height),
-      1.3,   // bloom intensity
-      0.45,  // bloom radius
-      0.55   // luminance threshold (only emissive objects bloom)
+      0.72,
+      0.32,
+      0.72
     );
 
     const composer = new EffectComposer(gl);
@@ -46,11 +46,25 @@ const PostProcessingBloom: React.FC = () => {
 export const GalaxyCanvas: React.FC = () => {
   const canvasMode = useViewStore((state) => state.canvasMode);
 
+  const handlePointerMissed = () => {
+    const state = useViewStore.getState();
+    if (state.canvasMode !== 'solarsystem') return;
+    state.setSelectedPlanetId(null);
+    state.setSelectedFileId(null);
+  };
+
   return (
     <div className="canvas-container">
       <Canvas
         camera={{ position: [0, 10, 34], fov: 50 }}
-        gl={{ antialias: true, alpha: false }}
+        dpr={[1, 1.75]}
+        gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+        onPointerMissed={handlePointerMissed}
+        onCreated={({ gl }) => {
+          gl.toneMapping = THREE.ACESFilmicToneMapping;
+          gl.toneMappingExposure = 1.05;
+          gl.outputColorSpace = THREE.SRGBColorSpace;
+        }}
         style={{ background: '#05070D' }}
       >
         {/* Render scene based on active canvas mode */}
