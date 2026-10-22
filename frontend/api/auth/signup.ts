@@ -12,32 +12,41 @@ const SignupSchema = z.object({
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const isAllowed = await rateLimit(req, res, 20, 60);
-  if (!isAllowed) return;
-
-  const parseResult = SignupSchema.safeParse(req.body);
-  if (!parseResult.success) {
-    return res.status(400).json({ error: parseResult.error.issues[0]?.message || 'Invalid signup request' });
-  }
-
-  const { email, password } = parseResult.data;
-
   try {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const isAllowed = await rateLimit(req, res, 20, 60);
+    if (!isAllowed) return;
+
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch {
+        return res.status(400).json({ error: 'Invalid JSON request body' });
+      }
+    }
+
+    const parseResult = SignupSchema.safeParse(body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: parseResult.error.issues[0]?.message || 'Invalid signup request' });
+    }
+
+    const { email, password } = parseResult.data;
+
     const db = getDb();
 
-    // Development fallback if Neon database is not connected
+    // Dev mode fallback if DB not configured
     if (!db) {
       const mockId = 'dev-user-' + Date.now();
       const tokenPayload = { userId: mockId, email };
@@ -78,18 +87,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error: any) {
     console.error('Signup error:', error);
-
-    // General fallback for unconfigured database connection
-    const mockId = 'dev-user-' + Date.now();
-    const tokenPayload = { userId: mockId, email };
-    const accessToken = signAccessToken(tokenPayload);
-    const refreshToken = signRefreshToken(tokenPayload);
-    setRefreshTokenCookie(res, refreshToken);
-
-    return res.status(201).json({
-      user: { id: mockId, email },
-      token: accessToken,
-      notice: 'Fallback dev mode.',
+    return res.status(500).json({
+      error: error?.message || 'Internal server error during signup',
     });
   }
 }
