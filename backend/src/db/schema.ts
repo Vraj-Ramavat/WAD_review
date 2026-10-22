@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, jsonb, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, integer, jsonb, uuid, boolean } from 'drizzle-orm/pg-core';
 
 // Users table
 export const users = pgTable('users', {
@@ -43,4 +43,42 @@ export const analysisCache = pgTable('analysis_cache', {
   repoId: text('repo_id').notNull().references(() => repos.id, { onDelete: 'cascade' }),
   cachedAt: timestamp('cached_at').defaultNow().notNull(),
   ttlHours: integer('ttl_hours').default(6).notNull(),
+});
+
+// Repo errors table — logs all errors from analysis pipeline per repository
+export const repoErrors = pgTable('repo_errors', {
+  id: uuid('id').primaryKey().defaultRandom(),
+
+  // Which repo this error belongs to (nullable: error may occur before repo is created)
+  repoId: text('repo_id').references(() => repos.id, { onDelete: 'cascade' }),
+
+  // Which analysis job triggered this error
+  jobId: text('job_id'),
+
+  // Repository URL or identifier, always captured for traceability
+  repoUrl: text('repo_url').notNull(),
+
+  // Error classification
+  errorType: text('error_type', {
+    enum: ['github_api', 'rate_limit', 'parsing', 'db_write', 'auth', 'timeout', 'network', 'unknown'],
+  }).default('unknown').notNull(),
+
+  // Severity level
+  severity: text('severity', {
+    enum: ['warning', 'error', 'critical'],
+  }).default('error').notNull(),
+
+  // Pipeline stage where the error occurred
+  stage: text('stage'), // e.g. 'fetch_github', 'ast_parse', 'ml_score', 'db_persist'
+
+  // Human-readable error message
+  message: text('message').notNull(),
+
+  // Full stack trace (optional, for debugging)
+  stackTrace: text('stack_trace'),
+
+  // Whether this error was retried/resolved
+  resolved: boolean('resolved').default(false).notNull(),
+
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });

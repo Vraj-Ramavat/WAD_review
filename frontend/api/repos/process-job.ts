@@ -1,11 +1,40 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { eq } from 'drizzle-orm';
 import { getDb } from '../_lib/db';
-import { analysisJobs, repos, analysisCache } from '../_lib/db/schema';
+import { analysisJobs, repos, analysisCache, repoErrors } from '../_lib/db/schema';
 import { fetchGitHubRepoDetails } from '../_lib/github';
 import { extractImportPaths, resolveDependencyIds } from '../_lib/dependencyParser';
 import { buildFeaturedRepoFromRawData } from '../_lib/mlScorer';
 import { inMemoryJobs } from '../_lib/jobStore';
+
+// Helper: persist error into repo_errors table
+async function logRepoError(opts: {
+  repoUrl: string;
+  jobId?: string;
+  repoId?: string;
+  message: string;
+  stage?: string;
+  errorType?: 'github_api' | 'rate_limit' | 'parsing' | 'db_write' | 'auth' | 'timeout' | 'network' | 'unknown';
+  severity?: 'warning' | 'error' | 'critical';
+  stack?: string;
+}) {
+  try {
+    const db = getDb();
+    if (!db) return;
+    await db.insert(repoErrors).values({
+      repoUrl: opts.repoUrl,
+      jobId: opts.jobId,
+      repoId: opts.repoId,
+      message: opts.message,
+      stage: opts.stage,
+      errorType: opts.errorType ?? 'unknown',
+      severity: opts.severity ?? 'error',
+      stackTrace: opts.stack,
+    });
+  } catch {
+    // Never let error logging break the main flow
+  }
+}
 
 export async function processAnalysisJob(jobId: string, owner: string, repo: string) {
   const updateStage = async (progress: number, stageMessage: string, status = 'running') => {
@@ -32,21 +61,50 @@ export async function processAnalysisJob(jobId: string, owner: string, repo: str
   try {
     // 1. Stage 1: Fetch real commit history & recursive tree from GitHub REST API
     await updateStage(20, 'Fetching commit history from GitHub API...');
-    const ghData = await fetchGitHubRepoDetails(owner, repo);
+    let ghData: Awaited<ReturnType<typeof fetchGitHubRepoDetails>>;
+    try {
+      ghData = await fetchGitHubRepoDetails(owner, repo);
+    } catch (ghErr: any) {
+      const isRateLimit = ghErr?.message?.toLowerCase().includes('rate limit');
+      await logRepoError({
+        repoUrl: `${owner}/${repo}`,
+        jobId,
+        message: ghErr.message || 'GitHub API fetch failed',
+        stage: 'fetch_github',
+        errorType: isRateLimit ? 'rate_limit' : 'github_api',
+        severity: 'critical',
+        stack: ghErr.stack,
+      });
+      throw ghErr;
+    }
 
     // 2. Stage 2: Extracting AST structures & JS/TS dependencies
     await updateStage(40, 'Extracting AST file structures and folder depth...');
 
     // 3. Stage 3 & 4: Score bug-risk with ML model & build FeaturedRepo
     await updateStage(60, 'Scoring bug-risk with machine learning models...');
-    const featuredRepo = buildFeaturedRepoFromRawData(
-      owner,
-      repo,
-      ghData.meta,
-      ghData.treeItems,
-      ghData.commits,
-      ghData.contributors
-    );
+    let featuredRepo: Awaited<ReturnType<typeof buildFeaturedRepoFromRawData>>;
+    try {
+      featuredRepo = buildFeaturedRepoFromRawData(
+        owner,
+        repo,
+        ghData.meta,
+        ghData.treeItems,
+        ghData.commits,
+        ghData.contributors
+      );
+    } catch (parseErr: any) {
+      await logRepoError({
+        repoUrl: `${owner}/${repo}`,
+        jobId,
+        message: parseErr.message || 'AST parsing / ML scoring failed',
+        stage: 'ast_parse',
+        errorType: 'parsing',
+        severity: 'error',
+        stack: parseErr.stack,
+      });
+      throw parseErr;
+    }
 
     // 4. Stage 5: Static dependency resolution for JS/TS files
     await updateStage(80, 'Placing star coordinates in Milky Way Hub...');
@@ -114,8 +172,18 @@ export async function processAnalysisJob(jobId: string, owner: string, repo: str
           })
           .where(eq(analysisJobs.id, jobId));
       }
-    } catch (dbErr) {
+    } catch (dbErr: any) {
       console.warn('Postgres save skipped in offline mode:', dbErr);
+      await logRepoError({
+        repoUrl: `${owner}/${repo}`,
+        jobId,
+        repoId: featuredRepo.id,
+        message: dbErr.message || 'Database persist failed',
+        stage: 'db_persist',
+        errorType: 'db_write',
+        severity: 'warning',
+        stack: dbErr.stack,
+      });
     }
 
     // Save in memory job state
@@ -137,6 +205,17 @@ export async function processAnalysisJob(jobId: string, owner: string, repo: str
       progress: 0,
       stageMessage: 'Job failed',
       errorMessage: error.message || 'Repository analysis failed.',
+    });
+
+    // Log the terminal error to repo_errors table
+    await logRepoError({
+      repoUrl: `${owner}/${repo}`,
+      jobId,
+      message: error.message || 'Repository analysis failed.',
+      stage: 'pipeline',
+      errorType: 'unknown',
+      severity: 'critical',
+      stack: error.stack,
     });
 
     try {
